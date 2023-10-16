@@ -34,7 +34,7 @@ class AuthController {
 			});
 			const token = generateJwt(user.id, user.email, user.role);
 
-			return res.json({ ...userData, token });
+			return res.json({ ...user, token });
 		} catch (err) {
 			console.log(err);
 			res.status(500).json({
@@ -75,7 +75,19 @@ class AuthController {
 			});
 		}
 	}
-	async checkAuth(req, res) {}
+	async checkAuth(req, res) {
+		try {
+			const user = await User.findOne({ where: { id: req.user.id } });
+			const { ...userData } = user;
+			console.log(userData);
+			res.json(userData);
+		} catch (err) {
+			console.log(err);
+			res.status(500).json({
+				message: "Нет доступа",
+			});
+		}
+	}
 }
 
 export default new AuthController();
