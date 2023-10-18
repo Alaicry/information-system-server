@@ -11,8 +11,17 @@ const User = sequelize.define("user", {
 		type: DataTypes.STRING,
 		unique: true,
 	},
+	firstName: {
+		type: DataTypes.STRING,
+		allowNull: false,
+	},
+	lastName: {
+		type: DataTypes.STRING,
+		allowNull: false,
+	},
 	password: {
 		type: DataTypes.STRING,
+		allowNull: false,
 	},
 	role: { type: DataTypes.STRING, defaultValue: "USER" },
 });
@@ -48,14 +57,6 @@ const Device = sequelize.define("device", {
 		primaryKey: true,
 		autoIncrement: true,
 	},
-	type: {
-		type: DataTypes.STRING,
-		allowNull: false,
-	},
-	brand: {
-		type: DataTypes.STRING,
-		allowNull: false,
-	},
 	model: {
 		type: DataTypes.STRING,
 		allowNull: false,
@@ -73,4 +74,13 @@ const Device = sequelize.define("device", {
 	},
 });
 
-export  { User };
+Type.hasMany(Device);
+Device.belongsTo(Type);
+
+Brand.hasMany(Device);
+Device.belongsTo(Brand);
+
+User.hasMany(Device);
+Device.belongsTo(User);
+
+export { User, Type };

@@ -1,20 +1,17 @@
 import { User } from "../models/models.js";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+
 import dotenv from "dotenv";
+import generateJwt from "../utils/generateJwt.js";
 
 dotenv.config();
 
-const generateJwt = (id, email, role) => {
-	return jwt.sign({ id, email, role }, process.env.SECRET_KEY, {
-		expiresIn: "24h",
-	});
-};
+
 
 class AuthController {
 	async signUp(req, res) {
 		try {
-			const { email, password, role } = req.body;
+			const { email, password, role, firstName, lastName } = req.body;
 			if (!email || !password) {
 				return res.status(404).json({
 					message: "Некорректный адрес электронной почты или пароль",
@@ -31,10 +28,18 @@ class AuthController {
 				email,
 				role,
 				password: hashPassword,
+				firstName,
+				lastName,
 			});
-			const token = generateJwt(user.id, user.email, user.role);
+			const token = generateJwt(
+				user.id,
+				user.email,
+				user.role,
+				user.firstName,
+				user.lastName
+			);
 
-			return res.json({ ...user, token });
+			return res.json({ token });
 		} catch (err) {
 			console.log(err);
 			res.status(500).json({
@@ -63,9 +68,8 @@ class AuthController {
 			}
 
 			const token = generateJwt(user.id, user.email, user.role);
-			const { ...userData } = user;
+
 			res.json({
-				...userData,
 				token,
 			});
 		} catch (err) {
@@ -79,7 +83,6 @@ class AuthController {
 		try {
 			const user = await User.findOne({ where: { id: req.user.id } });
 			const { ...userData } = user;
-			console.log(userData);
 			res.json(userData);
 		} catch (err) {
 			console.log(err);
