@@ -1,4 +1,4 @@
-import { Type } from "../models/models.js";
+import { DeviceType } from "../models/index.js";
 
 class TypeController {
 	async create(req, res) {
@@ -9,13 +9,13 @@ class TypeController {
 					message: "Некорректный тип устройства",
 				});
 			}
-			const foundType = await Type.findOne({ where: { name } });
+			const foundType = await DeviceType.findOne({ where: { name } });
 			if (foundType) {
 				return res.status(404).json({
 					message: "Данный тип устройства уже существует",
 				});
 			}
-			const type = await Type.create({
+			const type = await DeviceType.create({
 				name,
 			});
 
@@ -29,7 +29,7 @@ class TypeController {
 	}
 	async getAll(req, res) {
 		try {
-			const types = await Type.findAll();
+			const types = await DeviceType.findAll();
 			return res.json(types);
 		} catch (err) {
 			console.log(err);
@@ -42,7 +42,7 @@ class TypeController {
 		try {
 			const { id } = req.params;
 
-			const type = await Type.findOne({ where: { id } });
+			const type = await DeviceType.findOne({ where: { id } });
 			if (!type) {
 				return res
 					.status(404)
@@ -61,7 +61,7 @@ class TypeController {
 			const { id } = req.params;
 			const { name } = req.body;
 
-			await Type.update({ name }, { where: { id } });
+			await DeviceType.update({ name }, { where: { id } });
 
 			return res.json({ message: "Успешно" });
 		} catch (err) {
@@ -72,7 +72,7 @@ class TypeController {
 	async delete(req, res) {
 		try {
 			const { id } = req.params;
-			await Type.destroy({ where: { id } });
+			await DeviceType.destroy({ where: { id } });
 			return res.json({ message: "Успешно" });
 		} catch (err) {
 			console.log(err);
