@@ -6,31 +6,35 @@ import generateJwt from "../utils/generateJwt.js";
 
 dotenv.config();
 
-
-
-class AuthController {
+class UserController {
 	async signUp(req, res) {
 		try {
-			const { email, password, role, firstName, lastName } = req.body;
-			if (!email || !password) {
+			if (!req.body.email || !req.body.password) {
 				return res.status(404).json({
 					message: "Некорректный адрес электронной почты или пароль",
 				});
 			}
-			const candidate = await User.findOne({ where: { email } });
+
+			const candidate = await User.findOne({
+				where: { email: req.body.email },
+			});
+
 			if (candidate) {
 				return res
 					.status(404)
 					.json({ message: "Пользователь с таким email уже существует" });
 			}
-			const hashPassword = await bcrypt.hash(password, 5);
+
+			const hashPassword = await bcrypt.hash(req.body.password, 5);
+
 			const user = await User.create({
-				email,
-				role,
+				email: req.body.email,
+				role: req.body.role,
 				password: hashPassword,
-				firstName,
-				lastName,
+				firstName: req.body.firstName,
+				lastName: req.body.lastName,
 			});
+
 			const token = generateJwt(
 				user.id,
 				user.email,
@@ -38,11 +42,9 @@ class AuthController {
 				user.firstName,
 				user.lastName
 			);
-
 			return res.json({ token });
 		} catch (err) {
-			console.log(err);
-			res.status(500).json({
+			return res.status(500).json({
 				message: "Не удалось зарегистрироваться",
 			});
 		}
@@ -50,47 +52,53 @@ class AuthController {
 
 	async signIn(req, res) {
 		try {
-			const { email, password } = req.body;
-			const user = await User.findOne({ where: { email } });
-
+			const user = await User.findOne({ where: { email: req.body.email } });
 			if (!user) {
 				return res.status(404).json({
 					message: "Пользователь не найден",
 				});
 			}
 
-			const isValidPass = bcrypt.compare(password, user.password);
-
+			const isValidPass = bcrypt.compare(req.body.password, user.password);
 			if (!isValidPass) {
 				return res.status(400).json({
 					message: "Неверный логин и пароль",
 				});
 			}
 
-			const token = generateJwt(user.id, user.email, user.role);
-
-			res.json({
+			const token = generateJwt(
+				user.id,
+				user.email,
+				user.role,
+				user.firstName,
+				user.lastName
+			);
+			return res.json({
 				token,
 			});
 		} catch (err) {
-			console.log(err);
-			res.status(500).json({
+			return res.status(500).json({
 				message: "Не удалось авторизоваться",
 			});
 		}
 	}
+
 	async checkAuth(req, res) {
 		try {
-			const user = await User.findOne({ where: { id: req.user.id } });
-			const { ...userData } = user;
-			res.json(userData);
+			const token = generateJwt(
+				req.user.id,
+				req.user.email,
+				req.user.role,
+				req.user.firstName,
+				req.user.lastName
+			);
+			return res.json({ token });
 		} catch (err) {
-			console.log(err);
-			res.status(500).json({
+			return res.status(500).json({
 				message: "Нет доступа",
 			});
 		}
 	}
 }
 
-export default new AuthController();
+export default new UserController();

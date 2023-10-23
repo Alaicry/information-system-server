@@ -3,26 +3,26 @@ import { DeviceType } from "../models/index.js";
 class TypeController {
 	async create(req, res) {
 		try {
-			const { name } = req.body;
-			if (!name) {
+			if (!req.body.name) {
 				return res.status(404).json({
 					message: "Некорректный тип устройства",
 				});
 			}
-			const foundType = await DeviceType.findOne({ where: { name } });
+			const foundType = await DeviceType.findOne({
+				where: { name: req.body.name },
+			});
 			if (foundType) {
 				return res.status(404).json({
 					message: "Данный тип устройства уже существует",
 				});
 			}
 			const type = await DeviceType.create({
-				name,
+				name: req.body.name,
 			});
 
 			return res.json({ type });
 		} catch (err) {
-			console.log(err);
-			res.status(500).json({
+			return res.status(500).json({
 				message: "Не удалось добавить тип устройства",
 			});
 		}
@@ -38,7 +38,7 @@ class TypeController {
 			});
 		}
 	}
-	async get(req, res) {
+	async getOne(req, res) {
 		try {
 			const { id } = req.params;
 
@@ -50,8 +50,7 @@ class TypeController {
 			}
 			return res.json(type);
 		} catch (err) {
-			console.log(err);
-			res.status(500).json({
+			return res.status(500).json({
 				message: "Не удалось найти типы устройств",
 			});
 		}
