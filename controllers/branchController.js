@@ -35,9 +35,8 @@ class BranchController {
 				{ name: req.body.name },
 				{ where: { id: req.params.id } }
 			);
-
 			return res.json({
-				message: "Обновление наименование филиала прошло успешно",
+				message: "Успешно",
 			});
 		} catch (err) {
 			console.log(err);

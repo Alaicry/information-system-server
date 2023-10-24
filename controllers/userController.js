@@ -7,6 +7,7 @@ import generateJwt from "../utils/generateJwt.js";
 dotenv.config();
 
 class UserController {
+	
 	async signUp(req, res) {
 		try {
 			if (!req.body.email || !req.body.password) {
@@ -97,6 +98,33 @@ class UserController {
 			return res.status(500).json({
 				message: "Нет доступа",
 			});
+		}
+	}
+
+	async getAll(req, res) {
+		try {
+			const users = await User.findAll();
+			return res.json({ users });
+		} catch (err) {
+			return res
+				.status(500)
+				.json({ message: "Не удалось найти список пользователей" });
+		}
+	}
+
+	async getOne(req, res) {
+		try {
+			const user = await User.findOne({ where: { id: req.params.id } });
+			if (!user) {
+				return res
+					.status(404)
+					.json({ message: "Данный пользователь не найден" });
+			}
+			return res.json(user);
+		} catch (err) {
+			return res
+				.status(500)
+				.json({ message: "Не удалось найти данного пользователя" });
 		}
 	}
 }
