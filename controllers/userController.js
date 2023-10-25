@@ -1,13 +1,8 @@
 import { User } from "../models/index.js";
 import bcrypt from "bcrypt";
-
-import dotenv from "dotenv";
 import generateJwt from "../utils/generateJwt.js";
 
-dotenv.config();
-
 class UserController {
-	
 	async signUp(req, res) {
 		try {
 			if (!req.body.email || !req.body.password) {
@@ -103,7 +98,18 @@ class UserController {
 
 	async getAll(req, res) {
 		try {
-			const users = await User.findAll();
+			const allUsers = await User.findAll();
+			const users = allUsers.map((user) => {
+				return {
+					id: user.id,
+					email: user.email,
+					role: user.role,
+					firstName: user.firstName,
+					lastName: user.lastName,
+					createdAt: user.createdAt,
+					updatedAt: user.updatedAt,
+				};
+			});
 			return res.json({ users });
 		} catch (err) {
 			return res

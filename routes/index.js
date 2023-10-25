@@ -5,7 +5,7 @@ import branchRouter from "./branchRouter.js";
 
 const router = new Router();
 
-router.use("/auth", userRouter);
+router.use("/user", userRouter);
 router.use("/type", typeRouter);
 router.use("/branch", branchRouter);
 
